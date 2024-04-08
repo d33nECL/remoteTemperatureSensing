@@ -46,9 +46,8 @@ void loop() {
 
   // Send temperature data over WiFi
   WiFiClient client;
-  if (client.connect("10.0.1.251", 80)) {
-    client.print("GET /Probe2Temperature/");
-    client.print(tempC);
+  if (client.connect("10.0.1.166", 80)) {
+    client.print("Probe2Temperature," + String(tempC));
     client.stop();
   }
 
