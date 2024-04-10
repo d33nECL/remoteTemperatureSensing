@@ -41,7 +41,7 @@ void loop() {
   float tempC = sensors.getTempCByIndex(0);
 
   // Print temperature to serial monitor
-  Serial.print("probe1_Temperature: ");
+  Serial.print("RT_1: ");
   Serial.println(tempC);
 
   // Send temperature data over WiFi

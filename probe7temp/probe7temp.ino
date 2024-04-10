@@ -1,65 +1,32 @@
-#include <OneWire.h>
-#include <WiFiNINA.h>
+#include <AccelStepper.h>
 
-#define MAX31850_PIN 7 // Change this to the pin you've connected to DQ
+// Define X stepper motor connections
+#define X_STEP_PIN 2
+#define X_DIR_PIN 3
 
-const char *ssid = "Emerald Lab";
-const char *password = "DNArev0luti0n";
-char server[] = "10.0.1.166"; // Change this to your server's IP address
-int port = 80; // Change this to the port your server is listening on
+// Define Y stepper motor connections
+#define Y_STEP_PIN 4
+#define Y_DIR_PIN 5
 
-OneWire oneWire(MAX31850_PIN);
-WiFiClient client;
+// Create X and Y stepper motor objects
+AccelStepper stepperX(1, X_STEP_PIN, X_DIR_PIN); // (driver type, step pin, direction pin)
+AccelStepper stepperY(1, Y_STEP_PIN, Y_DIR_PIN); // (driver type, step pin, direction pin)
 
 void setup() {
-  Serial.begin(9600);
-  while (!Serial);
+  // Set maximum speed and acceleration for X and Y motors
+  stepperX.setMaxSpeed(1000); // Adjust as needed (steps/second)
+  stepperX.setAcceleration(500); // Adjust as needed (steps/second^2)
   
-  // Attempt to connect to WiFi network
-  while (WiFi.begin(ssid, password) != WL_CONNECTED) {
-    Serial.println("Attempting to connect to WiFi...");
-    delay(1000);
-  }
-  
-  Serial.println("Connected to WiFi");
+  stepperY.setMaxSpeed(1000); // Adjust as needed (steps/second)
+  stepperY.setAcceleration(500); // Adjust as needed (steps/second^2)
+
+  // Set initial direction for X and Y motors
+  stepperX.setSpeed(500); // Adjust speed as needed (steps/second)
+  stepperY.setSpeed(500); // Adjust speed as needed (steps/second)
 }
 
 void loop() {
-  if (client.connect(server, port)) {
-    Serial.println("Connected to server");
-
-    byte data[9];
-    float temp;
-
-    oneWire.reset();
-    oneWire.write(0xCC); // Skip ROM command
-    oneWire.write(0x44); // Convert T command
-
-    delay(750); // Wait for conversion to complete
-
-    oneWire.reset();
-    oneWire.write(0xCC); // Skip ROM command
-    oneWire.write(0xBE); // Read Scratchpad command
-
-    for (int i = 0; i < 9; i++) {
-      data[i] = oneWire.read();
-    }
-
-    // Extract temperature data from scratchpad
-    int16_t raw = (data[1] << 8) | data[0];
-    temp = (float)raw / 16.0;
-
-
-    Serial.print("Temperature: ");
-    Serial.print(temp);
-    Serial.println(" °C");
-
-    // Send temperature data to server
-    client.println("Probe7Temperature," + String(temp));
-    client.println();
-    
-    delay(5000); // Wait before sending the next reading
-  } else {
-    Serial.println("Unable to connect to server");
-  }
+  // Rotate X and Y motors continuously in one direction
+  stepperX.runSpeed();
+  stepperY.runSpeed();
 }
