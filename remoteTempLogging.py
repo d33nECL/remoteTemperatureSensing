@@ -15,11 +15,12 @@ def handle_client(client_socket, addr, log_file_path):
     probe_name, temp_data = data.split(',')
 
     # Get current timestamp
-    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    now = datetime.now()
+    timestamp = "{:04d}-{:d}-{:d} {:02d}:{:02d}:{:02d}".format(now.year, now.month, now.day, now.hour, now.minute, now.second)
 
     # Write data to the log file
     with open(log_file_path, 'a') as log_file:
-        log_file.write(f'{timestamp},{probe_name},{temp_data}\n')
+        log_file.write(f'{timestamp};{probe_name};{temp_data}\n')
 
     # Close the connection
     client_socket.close()
